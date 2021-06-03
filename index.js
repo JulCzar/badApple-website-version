@@ -1,24 +1,28 @@
 const d = document
 const ROOT = d.getElementById('root')
 
+const FRAMERATE = 36;
+
+const canvas = d.createElement('canvas')
+const ctx = canvas.getContext('2d')
+canvas.width = 800
+canvas.height = 50
+
 /**
  * @param {number[][]} frame 
  */
 function printFrame(frame) {
-  const htmlArray = ['<div class="container">']
+  const { width, height } = canvas
+  ctx.clearRect(0, 0, width, height)
 
-  for (const row of frame) {
-    htmlArray.push('<div class="row">')
-    for (const pixel of row) {
-      htmlArray.push(`<div class="pixel">${pixel}</div>`)
+  const [frameHeight, frameWidth] = [frame.length, frame[0].length]
+  const [incrementX, incrementY] = [width/frameWidth, height/frameHeight]
+  for (const [i, row] of Object.entries(frame)) {
+    for (const [j, pixel] of Object.entries(row)) {
+      const [posX, posY] = [j*incrementX, i*incrementY]
+      ctx.fillText(pixel, posX, posY)
     }
-    htmlArray.push('</div>')
   }
-  htmlArray.push('</div>')
-
-  const htmlString = htmlArray.join('')
-
-  ROOT.innerHTML = htmlString
 }
 
 function iterateAllArray(array) {
@@ -26,11 +30,12 @@ function iterateAllArray(array) {
 
   printFrame(first)
 
-  if (rest.length > 0) requestAnimationFrame(() => iterateAllArray(rest))
+  if (rest.length > 0) setTimeout(() => iterateAllArray(rest), 1000/FRAMERATE)
 }
 
 (async function() {
   const badApple = await fetch('/badApple.json').then(r => r.json())
 
   iterateAllArray(badApple.data)
+  ROOT.appendChild(canvas)
 })()
