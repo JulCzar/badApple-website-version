@@ -6,7 +6,7 @@ const FRAMERATE = 36;
 const canvas = d.createElement('canvas')
 const ctx = canvas.getContext('2d')
 canvas.width = 800
-canvas.height = 50
+canvas.height = 530
 
 /**
  * @param {number[][]} frame 
