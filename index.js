@@ -1,7 +1,7 @@
 const d = document
 const ROOT = d.getElementById('root')
 
-const FRAMERATE = 36;
+const FRAMERATE = 30;
 
 const canvas = d.createElement('canvas')
 const ctx = canvas.getContext('2d')
