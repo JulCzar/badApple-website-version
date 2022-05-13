@@ -1,0 +1,14 @@
+[
+  {
+    "relations": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "firebase_czar_test",
+      "package_name": "com.firebase_czar_app",
+      "sha256_cert_fingerprints": [
+        "5e:8f:16:06:2e:a3:cd:2c:4a:0d:54:78:76:ba:a6:f3:8c:ab:f6:25"
+      ]
+    }
+  }
+]
