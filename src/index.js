@@ -110,7 +110,7 @@
     for (const [i, row] of Object.entries(frame)) {
       for (const [j, pixel] of Object.entries(row)) {
         const [posX, posY] = [j * incrementX, i * incrementY];
-        ctx.fillText(
+        if (pixel !== '⠄') ctx.fillText(
           pixel,
           posX + (widthIsTooLarge ? 0 : Math.abs(width - widthForRatio) / 2),
           posY +
