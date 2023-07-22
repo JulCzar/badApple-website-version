@@ -8,9 +8,18 @@
     classList: 'button hidden',
     innerText: 'replay',
   });
+  const buttonMusic = Object.assign(d.createElement('button'), {
+    classList: 'button hidden',
+    innerText: 'play audio',
+  });
   const canvas = Object.assign(d.createElement('canvas'), {
     width: window.innerWidth,
     height: window.innerHeight,
+  });
+  const audio = Object.assign(d.createElement('audio'), {
+    src: './src/assets/badapple.mp3',
+    volume: 0.05,
+    autoplay: false
   });
 
   const ctx = canvas.getContext('2d');
@@ -18,8 +27,10 @@
 
   const FRAMERATE = 30;
 
+  ROOT.appendChild(audio);
   ROOT.appendChild(canvas);
   ROOT.appendChild(buttonReplay);
+  ROOT.appendChild(buttonMusic);
 
   const getDimensions = () => {
     let height = 0;
@@ -110,12 +121,15 @@
     for (const [i, row] of Object.entries(frame)) {
       for (const [j, pixel] of Object.entries(row)) {
         const [posX, posY] = [j * incrementX, i * incrementY];
-        if (pixel !== '⠄') ctx.fillText(
-          pixel,
-          posX + (widthIsTooLarge ? 0 : Math.abs(width - widthForRatio) / 2),
-          posY +
-          (heightIsTooLarge ? 16 : Math.abs(height - heightForRatio) / 2 + 16)
-        );
+        if (pixel !== '⠄')
+          ctx.fillText(
+            pixel,
+            posX + (widthIsTooLarge ? 0 : Math.abs(width - widthForRatio) / 2),
+            posY +
+            (heightIsTooLarge
+              ? 16
+              : Math.abs(height - heightForRatio) / 2 + 16)
+          );
       }
     }
   }
@@ -123,29 +137,43 @@
   function parseTime(ms) {
     return {
       minutes: Math.floor(ms / 60),
-      seconds: Math.floor(ms % 60)
-    }
+      seconds: Math.floor(ms % 60),
+    };
+  }
+
+  /**
+   * @param {number} frameTime
+   */
+  function fixAudioTime(frameTime) {
+    const currentTimeFixed = Math.round(audio.currentTime * 1000)
+    const diffCurrFrameAudio = Math.abs(currentTimeFixed - frameTime);
+    if (!audio.paused && (diffCurrFrameAudio) > 100)
+      audio.currentTime = frameTime / 1000;
   }
 
   function playVideo(array, startTime = Date.now()) {
     try {
       const now = Date.now();
+      const frameTime = now - startTime;
       const currentFrameCount = Math.min(
-        Math.round((now - startTime) / (1000 / FRAMERATE))
+        Math.round(frameTime / (1000 / FRAMERATE))
       );
       const currentTime = (now - startTime) / 1000;
-      const { minutes, seconds } = parseTime(currentTime)
+      const { minutes, seconds } = parseTime(currentTime);
 
-      d.title = `${minutes.toFixed(0).padStart(2, 0)}:${seconds.toFixed(0).padStart(2, 0)}`
+      d.title = `${minutes.toFixed(0).padStart(2, 0)}:${seconds
+        .toFixed(0)
+        .padStart(2, 0)}`;
       const currentFrame = array[currentFrameCount];
 
       printFrame(currentFrame);
+      fixAudioTime(frameTime);
 
       requestAnimationFrame(() => playVideo(array, startTime));
     } catch (e) {
       if (e instanceof Error) {
         if (!e.message.includes('length')) return console.error(e);
-        d.title = 'BadApple'
+        d.title = 'BadApple';
         buttonReplay.classList.remove('hidden');
       } else {
         console.error(e);
@@ -173,9 +201,18 @@
   const badApple = await loadBadApple();
 
   playVideo(badApple.data);
+  audio.play().catch(() => {
+    buttonMusic.classList.remove('hidden')
+  })
 
   buttonReplay.addEventListener('click', () => {
     buttonReplay.classList.add('hidden');
     playVideo(badApple.data);
+    audio.currentTime = 0;
+    audio.play();
   });
+  buttonMusic.addEventListener('click', () => {
+    buttonMusic.classList.add('hidden')
+    audio.play();
+  })
 })();
